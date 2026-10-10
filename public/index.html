@@ -1,1 +1,200 @@
 
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bulk Animation Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #10131c;
+      color: #f3f4f6;
+      font-family: Arial, sans-serif;
+    }
+    main {
+      max-width: 900px;
+      margin: auto;
+    }
+    section {
+      background: #1b2030;
+      padding: 20px;
+      margin: 16px 0;
+      border-radius: 12px;
+    }
+    input, textarea, button {
+      box-sizing: border-box;
+      padding: 11px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #414961;
+      font-size: 14px;
+    }
+    input, textarea {
+      width: 100%;
+      background: #10131c;
+      color: white;
+    }
+    button {
+      cursor: pointer;
+      background: #5575ed;
+      color: white;
+      border: 0;
+    }
+    button:hover { background: #3d5ed1; }
+    li { margin: 10px 0; overflow-wrap: anywhere; }
+    .muted { color: #b5bfd3; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Bulk Animation Dashboard</h1>
+  <p class="muted">Kelola daftar Animation ID Roblox milikmu atau yang kamu punya izin untuk gunakan.</p>
+
+  <section>
+    <h2>Tambah Animation ID</h2>
+    <p class="muted">Masukkan satu atau beberapa ID, pisahkan dengan koma atau baris baru.</p>
+    <textarea id="idsInput" rows="4" placeholder="1234567890&#10;9876543210"></textarea>
+    <button id="addBtn">Tambah ID</button>
+    <button id="exportBtn">Export CSV</button>
+    <p id="status" role="status"></p>
+  </section>
+
+  <section>
+    <h2>Daftar Animation ID</h2>
+    <input id="searchInput" placeholder="Cari ID...">
+    <p id="count">Total: 0 ID</p>
+    <ul id="idList"></ul>
+  </section>
+
+  <section>
+    <h2>Pindai File RBXM</h2>
+    <p class="muted">Pemindaian awal ini mencari teks rbxassetid:// di dalam file. Tidak semua ID yang tertanam dalam file RBXM biner pasti terdeteksi.</p>
+    <input id="rbxmFile" type="file" accept=".rbxm,.rbxmx">
+    <button id="scanBtn">Pindai File</button>
+    <pre id="scanResult"></pre>
+  </section>
+</main>
+
+<script>
+  const STORAGE_KEY = "bulkAnimationIds_v1";
+  let ids = [];
+
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    if (Array.isArray(saved)) ids = saved.filter(x => /^\d+$/.test(String(x)));
+  } catch {}
+
+  const input = document.getElementById("idsInput");
+  const search = document.getElementById("searchInput");
+  const list = document.getElementById("idList");
+  const count = document.getElementById("count");
+  const status = document.getElementById("status");
+
+  function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
+    render();
+  }
+
+  function render() {
+    list.replaceChildren();
+    const query = search.value.trim();
+    const shown = ids.filter(id => id.includes(query));
+    count.textContent = `Total: ${ids.length} ID`;
+
+    shown.forEach(id => {
+      const li = document.createElement("li");
+      const label = document.createElement("span");
+      label.textContent = id + " ";
+
+      const copy = document.createElement("button");
+      copy.textContent = "Salin";
+      copy.onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(id);
+          status.textContent = "ID berhasil disalin.";
+        } catch {
+          status.textContent = "Tidak dapat menyalin otomatis. Pilih dan salin ID secara manual.";
+        }
+      };
+
+      const remove = document.createElement("button");
+      remove.textContent = "Hapus";
+      remove.onclick = () => {
+        ids = ids.filter(item => item !== id);
+        save();
+        status.textContent = "ID dihapus.";
+      };
+
+      li.append(label, copy, remove);
+      list.appendChild(li);
+    });
+  }
+
+  document.getElementById("addBtn").onclick = () => {
+    const found = input.value.match(/\d+/g) || [];
+    const unique = [...new Set(found)];
+    let added = 0;
+
+    unique.forEach(id => {
+      if (!ids.includes(id)) {
+        ids.push(id);
+        added++;
+      }
+    });
+
+    save();
+    input.value = "";
+    status.textContent = `${added} ID baru ditambahkan.`;
+  };
+
+  search.oninput = render;
+
+  document.getElementById("exportBtn").onclick = () => {
+    const csv = "AnimationID\n" + ids.map(id => id).join("\n");
+    const blob = new Blob([csv], {type: "text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "animation-ids.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  document.getElementById("scanBtn").onclick = async () => {
+    const file = document.getElementById("rbxmFile").files[0];
+    const output = document.getElementById("scanResult");
+
+    if (!file) {
+      output.textContent = "Pilih file RBXM atau RBXMX terlebih dahulu.";
+      return;
+    }
+
+    const form = new FormData();
+    form.append("file", file);
+    output.textContent = "Sedang memindai...";
+
+    try {
+      const response = await fetch("/api/scan-rbxm", {
+        method: "POST",
+        body: form
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Pemindaian gagal.");
+
+      const found = [...new Set(data.ids || [])];
+      output.textContent = found.length
+        ? "ID ditemukan:\n" + found.join("\n")
+        : "Tidak ditemukan ID yang dapat dibaca.";
+      ids = [...new Set([...ids, ...found])];
+      save();
+    } catch (error) {
+      output.textContent = "Gagal memindai: " + error.message;
+    }
+  };
+
+  render();
+</script>
+</body>
+</html>
