@@ -1,14 +1,10 @@
 {
-  "name": "roblox-ultimate-tool",
-  "version": "1.0.0",
+  "name": "sakurayama-music-studio",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Sakurayama Music Studio mixer and Roblox Open Cloud audio publisher",
   "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2",
-    "multer": "^1.4.5-lts.1",
-    "node-fetch": "^2.7.0",
-    "form-data": "^4.0.0"
-  }
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": { "express": "^4.21.2", "multer": "^1.4.5-lts.1" }
 }
