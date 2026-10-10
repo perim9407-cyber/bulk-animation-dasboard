@@ -1,10 +1,884 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sakurayama Music Studio</title><style>
-:root{color-scheme:dark;--bg:#090d16;--panel:#141c2d;--line:#2b3850;--txt:#eef3ff;--muted:#9aa8c3;--pink:#e879f9;--blue:#60a5fa}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top right,#222047,var(--bg) 48%);font:15px/1.5 system-ui;color:var(--txt)}header{padding:24px clamp(16px,4vw,44px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px}.logo{width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--blue));color:#111;display:grid;place-items:center;font-weight:900;font-size:22px}h1{font-size:clamp(21px,3vw,29px);margin:0}header p{margin:2px 0 0;color:var(--muted);font-size:13px}main{max-width:1200px;margin:auto;padding:28px clamp(14px,3vw,34px)}.hero h2{font-size:clamp(25px,4vw,38px);line-height:1.12;margin:0 0 10px;max-width:700px}.hero p,.sub,.note{color:var(--muted)}.hero p{max-width:760px}.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:24px}.panel{min-width:0;background:linear-gradient(180deg,#151e30,#101624);border:1px solid var(--line);border-radius:18px;padding:20px}.panel h3{margin:0 0 4px}.sub{font-size:13px;margin:0 0 16px}.drop{border:1px dashed #536583;border-radius:14px;padding:20px;text-align:center;background:#0c1321}.tracklist{display:grid;gap:10px;margin-top:14px}.track{background:#0c1220;border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}.trackname{font-weight:650;overflow-wrap:anywhere}.meta{font-size:12px;color:var(--muted)}.controls{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr auto;gap:9px;align-items:center}label{display:block;font-size:13px;color:#cbd5e7;margin:12px 0 6px}input[type=text],input[type=file]{max-width:100%}input[type=text]{width:100%;padding:11px;border-radius:10px;border:1px solid #35435e;background:#0b1120;color:var(--txt)}input[type=range]{width:100%;accent-color:var(--pink)}button{border:0;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer;background:linear-gradient(110deg,var(--pink),var(--blue));color:#101322}button.secondary{background:#202a40;border:1px solid #36445f;color:var(--txt)}button:disabled{opacity:.5}.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}.status{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#0a101c;padding:12px;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.status.ok{border-color:#2f7a63;color:#6ee7b7}.status.err{border-color:#8b3d52;color:#fda4af}.rights{display:flex;gap:8px;align-items:flex-start;color:#cbd5e7;font-size:12px;margin-top:14px}.rights input{margin-top:4px}.note{font-size:12px;margin-top:14px}footer{text-align:center;color:#7888a6;font-size:12px;padding:20px}@media(max-width:820px){.grid{grid-template-columns:1fr}}
-</style></head><body><header><div class="logo">S</div><div><h1>Sakurayama Music Studio</h1><p>Mix · Preview · Roblox Audio Publisher</p></div></header><main><section class="hero"><h2>Studio musik untuk track milikmu.</h2><p>Mix beberapa file audio langsung di browser, dengarkan hasilnya, ekspor WAV, lalu kirim audio yang kamu punya haknya ke Roblox. Tidak ada fitur untuk menyamarkan lagu berhak cipta atau melewati moderasi.</p></section><div class="grid"><section class="panel"><h3>01 / Audio Mixer</h3><p class="sub">Tambahkan beberapa track. Mixing dan preview berlangsung di browser.</p><div class="drop"><b>Pilih file audio</b><br><span class="meta">MP3, WAV, OGG, FLAC · pilih beberapa file</span><br><input id="files" type="file" accept="audio/*,.flac,.ogg" multiple></div><div id="tracklist" class="tracklist"><div class="meta">Belum ada track.</div></div><label>Master volume <span id="masterval">85%</span></label><input id="master" type="range" min="0" max="100" value="85"><div class="actions"><button id="play">▶ Play mix</button><button id="stop" class="secondary">■ Stop</button><button id="export" class="secondary">Export WAV</button></div><div id="mixstatus" class="status">Siap. Audio diproses di browser kamu.</div><p class="note">Semua track mulai dari detik 0. Ekspor WAV dapat menghasilkan file besar; cek ukuran sebelum upload.</p></section><section class="panel"><h3>02 / Roblox Publisher</h3><p class="sub">Mengunggah satu file per permintaan melalui Roblox Open Cloud.</p><label>File audio (pilih salah satu sumber)</label><input id="publishFile" type="file" accept=".mp3,.ogg,.wav,.flac,audio/*"><label>Atau URL YouTube</label><input id="youtubeUrl" type="text" maxlength="500" placeholder="https://www.youtube.com/watch?v=..." autocomplete="url"><p class="note">Gunakan hanya audio yang kamu miliki atau berhak gunakan. URL YouTube memerlukan yt-dlp dan FFmpeg di server.</p><label>Nama aset Roblox</label><input id="displayName" type="text" maxlength="80" placeholder="Contoh: Sakurayama Afro House 01"><div class="rights"><input id="rights" type="checkbox"><span>Saya memiliki hak atau izin yang diperlukan untuk mengunggah dan menggunakan audio ini, serta memahami Roblox tetap melakukan pemeriksaan dan moderasi.</span></div><div class="actions"><button id="upload">Upload ke Roblox</button></div><div id="uploadstatus" class="status">Maksimal 20 MB dan 7 menit menurut dokumentasi Roblox. Batas akun juga berlaku.</div><p class="note">API key hanya berada di server Railway. Aset belum tentu langsung dapat digunakan; pengaturan izin experience mungkin diperlukan di Creator Dashboard.</p></section></div></main><footer>Sakurayama Music Studio · Gunakan audio orisinal atau audio berlisensi.</footer><script>
-const $=id=>document.getElementById(id);let tracks=[],ctx=null,sources=[],master=null,playing=false;const fmt=s=>Math.floor(s/60)+':'+String(Math.floor(s%60)).padStart(2,'0');function status(s,t=''){ $('mixstatus').textContent=s;$('mixstatus').className='status '+t}function context(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
-$('files').onchange=async e=>{const fs=[...e.target.files];if(!fs.length)return;status('Memuat audio…');for(const file of fs){try{const buffer=await context().decodeAudioData(await file.arrayBuffer());tracks.push({id:Math.random().toString(36),file,buffer,volume:1})}catch{status('File tidak dapat dibaca. Coba file MP3/WAV/OGG yang valid.','err')}}e.target.value='';render();status(`${tracks.length} track siap.`,'ok')};function render(){const list=$('tracklist');list.innerHTML='';if(!tracks.length){list.innerHTML='<div class="meta">Belum ada track.</div>';return}tracks.forEach(t=>{const el=document.createElement('div');el.className='track';const info=document.createElement('div'),n=document.createElement('div'),m=document.createElement('div');n.className='trackname';n.textContent=t.file.name;m.className='meta';m.textContent=`${fmt(t.buffer.duration)} · ${(t.file.size/1048576).toFixed(2)} MB`;info.append(n,m);const del=document.createElement('button');del.className='secondary';del.textContent='Hapus';del.onclick=()=>{stop();tracks=tracks.filter(x=>x.id!==t.id);render()};const controls=document.createElement('div');controls.className='controls';const l=document.createElement('span');l.className='meta';l.textContent='Volume';const r=document.createElement('input');r.type='range';r.min=0;r.max=150;r.value=100;const v=document.createElement('span');v.className='meta';v.textContent='100%';r.oninput=()=>{t.volume=+r.value/100;v.textContent=r.value+'%'};controls.append(l,r,v);el.append(info,del,controls);list.append(el)})}
-function stop(){sources.forEach(s=>{try{s.stop()}catch{}try{s.disconnect()}catch{}});sources=[];playing=false;if(master){try{master.disconnect()}catch{}master=null}}$('stop').onclick=()=>{stop();status('Playback dihentikan.')};$('master').oninput=()=>{$('masterval').textContent=$('master').value+'%';if(master)master.gain.value=+$('master').value/100};$('play').onclick=async()=>{if(!tracks.length)return status('Tambahkan track terlebih dahulu.','err');stop();const c=context();await c.resume();master=c.createGain();master.gain.value=+$('master').value/100;master.connect(c.destination);tracks.forEach(t=>{const s=c.createBufferSource(),g=c.createGain();s.buffer=t.buffer;g.gain.value=t.volume;s.connect(g);g.connect(master);s.start(c.currentTime+.05);sources.push(s)});playing=true;status('Memutar semua track bersamaan dari awal.','ok');setTimeout(()=>{if(playing){playing=false;sources=[];if(master){try{master.disconnect()}catch{}master=null}status('Playback selesai.')}},Math.max(...tracks.map(t=>t.buffer.duration))*1000+200)};
-function wav(b){const ch=b.numberOfChannels,sr=b.sampleRate,len=b.length,out=new ArrayBuffer(44+len*ch*2),v=new DataView(out),w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i))};w(0,'RIFF');v.setUint32(4,36+len*ch*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,ch,true);v.setUint32(24,sr,true);v.setUint32(28,sr*ch*2,true);v.setUint16(32,ch*2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,len*ch*2,true);const d=Array.from({length:ch},(_,i)=>b.getChannelData(i));let o=44;for(let i=0;i<len;i++)for(let c=0;c<ch;c++){const x=Math.max(-1,Math.min(1,d[c][i]));v.setInt16(o,x<0?x*32768:x*32767,true);o+=2}return new Blob([out],{type:'audio/wav'})}
-$('export').onclick=async()=>{if(!tracks.length)return status('Tambahkan track sebelum ekspor.','err');$('export').disabled=true;status('Merender WAV…');try{const sr=Math.min(48000,Math.max(...tracks.map(t=>t.buffer.sampleRate))),ch=Math.min(2,Math.max(...tracks.map(t=>t.buffer.numberOfChannels))),dur=Math.max(...tracks.map(t=>t.buffer.duration)),off=new OfflineAudioContext(ch,Math.ceil(dur*sr),sr),g=off.createGain();g.gain.value=+$('master').value/100;g.connect(off.destination);tracks.forEach(t=>{const s=off.createBufferSource(),gain=off.createGain();s.buffer=t.buffer;gain.gain.value=t.volume;s.connect(gain);gain.connect(g);s.start(0)});const blob=wav(await off.startRendering()),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='sakurayama-mix.wav';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),10000);status(`WAV diekspor: ${(blob.size/1048576).toFixed(2)} MB. Cek ukuran sebelum upload.`,'ok')}catch(e){status('Ekspor gagal: '+e.message,'err')}finally{$('export').disabled=false}};
-$('upload').onclick=async()=>{const f=$('publishFile').files[0],url=$('youtubeUrl').value.trim();if(Boolean(f)===Boolean(url))return uploadStatus('Pilih satu sumber saja: file audio atau URL YouTube.','err');if(!$('rights').checked)return uploadStatus('Konfirmasi hak penggunaan audio terlebih dahulu.','err');if(f){const ext=f.name.toLowerCase().split('.').pop();if(!['mp3','ogg','wav','flac'].includes(ext))return uploadStatus('Format harus MP3, OGG, WAV, atau FLAC.','err');if(f.size>19*1024*1024)return uploadStatus('Ukuran file maksimal 19 MB pada uploader ini.','err')}else if(!/^https:\/\//i.test(url))return uploadStatus('URL harus dimulai dengan https://','err');const form=new FormData();if(f)form.append('audio',f);else form.append('youtubeUrl',url);form.append('displayName',$('displayName').value.trim()||(f?f.name.replace(/\.[^.]+$/,''):'YouTube Audio'));$('upload').disabled=true;uploadStatus(f?'Mengirim file ke Roblox Open Cloud…':'Mengambil audio YouTube lalu mengirim ke Roblox Open Cloud…');try{const r=await fetch('/api/upload-audio',{method:'POST',body:form}),d=await r.json().catch(()=>({error:'Respons server tidak valid'}));if(!r.ok)throw Error(JSON.stringify(d,null,2));uploadStatus(JSON.stringify(d,null,2),'ok')}catch(e){uploadStatus('Upload gagal:\n'+e.message,'err')}finally{$('upload').disabled=false}};function uploadStatus(s,t=''){ $('uploadstatus').textContent=s;$('uploadstatus').className='status '+t}
-</script></body></html>
+
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sakurayama Music Studio | Bulk Animation</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#090d16;
+  --panel:#141c2d;
+  --line:#2b3850;
+  --txt:#eef3ff;
+  --muted:#9aa8c3;
+  --pink:#e879f9;
+  --blue:#60a5fa;
+  --green:#6ee7b7;
+  --red:#fda4af;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:radial-gradient(ellipse at top right,#222047,var(--bg) 48%);
+  font:15px/1.5 system-ui,sans-serif;
+  color:var(--txt)
+}
+header{
+  padding:22px clamp(16px,4vw,44px);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;
+  position:sticky;top:0;z-index:10;
+  background:#090d16ed;backdrop-filter:blur(12px)
+}
+.logo{
+  width:46px;height:46px;border-radius:14px;
+  background:linear-gradient(135deg,var(--pink),var(--blue));
+  color:#111;display:grid;place-items:center;
+  font-weight:900;font-size:22px
+}
+h1{font-size:clamp(20px,3vw,28px);margin:0}
+header p{margin:2px 0 0;color:var(--muted);font-size:13px}
+nav{
+  display:flex;gap:8px;flex-wrap:wrap;
+  padding:12px clamp(14px,3vw,34px);
+  border-bottom:1px solid var(--line)
+}
+nav a{
+  color:var(--txt);text-decoration:none;
+  padding:9px 13px;border:1px solid var(--line);
+  border-radius:10px;background:#141c2d
+}
+nav a:hover{border-color:var(--pink)}
+main{max-width:1250px;margin:auto;padding:26px clamp(14px,3vw,34px)}
+.hero h2{font-size:clamp(25px,4vw,38px);line-height:1.12;margin:0 0 10px}
+.hero p,.sub,.note{color:var(--muted)}
+.hero p{max-width:800px}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:24px}
+.panel{
+  min-width:0;background:linear-gradient(180deg,#151e30,#101624);
+  border:1px solid var(--line);border-radius:18px;
+  padding:20px;margin-bottom:18px
+}
+.panel h3{margin:0 0 4px}
+.sub{font-size:13px;margin:0 0 16px}
+.drop{
+  border:1px dashed #536583;border-radius:14px;
+  padding:20px;text-align:center;background:#0c1321
+}
+.tracklist{display:grid;gap:10px;margin-top:14px}
+.track{
+  background:#0c1220;border:1px solid var(--line);
+  border-radius:12px;padding:12px;
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;min-width:0
+}
+.trackname{font-weight:650;overflow-wrap:anywhere}
+.meta{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.controls{
+  grid-column:1/-1;display:grid;
+  grid-template-columns:auto 1fr auto;gap:9px;align-items:center
+}
+label{display:block;font-size:13px;color:#cbd5e7;margin:12px 0 6px}
+input[type=text],input[type=file],textarea{max-width:100%}
+input[type=text],textarea{
+  width:100%;padding:11px;border-radius:10px;
+  border:1px solid #35435e;background:#0b1120;color:var(--txt)
+}
+input[type=file]{width:100%;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--pink)}
+button{
+  border:0;border-radius:10px;padding:10px 14px;
+  font-weight:750;cursor:pointer;
+  background:linear-gradient(110deg,var(--pink),var(--blue));
+  color:#101322
+}
+button.secondary{background:#202a40;border:1px solid #36445f;color:var(--txt)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.status{
+  margin-top:12px;border:1px solid var(--line);
+  border-radius:10px;background:#0a101c;padding:12px;
+  white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px
+}
+.status.ok{border-color:#2f7a63;color:var(--green)}
+.status.err{border-color:#8b3d52;color:var(--red)}
+.status.warn{border-color:#8b6c3d;color:#fcd38d}
+.rights{display:flex;gap:8px;align-items:flex-start;color:#cbd5e7;font-size:12px;margin-top:14px}
+.rights input{margin-top:4px}
+.note{font-size:12px;margin-top:14px}
+.progress{height:8px;background:#202a40;border-radius:20px;overflow:hidden;margin-top:10px}
+.progress>div{height:100%;width:0;background:linear-gradient(90deg,var(--pink),var(--blue));transition:width .2s}
+.badge{font-size:11px;border:1px solid var(--line);border-radius:20px;padding:3px 8px;color:var(--muted)}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+.tab{background:#202a40;color:var(--txt);border:1px solid var(--line)}
+.tab.active{background:linear-gradient(110deg,var(--pink),var(--blue));color:#101322}
+.hidden{display:none!important}
+footer{text-align:center;color:#7888a6;font-size:12px;padding:20px}
+@media(max-width:820px){
+  .grid{grid-template-columns:1fr}
+  header{position:relative}
+  .controls{grid-template-columns:auto 1fr auto}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">S</div>
+  <div>
+    <h1>Sakurayama Studio</h1>
+    <p>Music Studio · Bulk Animation · Roblox Publisher</p>
+  </div>
+</header>
+
+<nav>
+  <a href="#animation">Bulk Animation</a>
+  <a href="#music">Music Studio</a>
+  <a href="#publisher">Music Publisher</a>
+</nav>
+
+<main>
+<section class="hero">
+  <h2>One studio. All your creative assets.</h2>
+  <p>
+    Kelola daftar ID animasi, periksa daftar file model Roblox,
+    mixing audio, preview, ekspor WAV, dan upload audio yang kamu
+    punya hak untuk gunakan. Dashboard ini mempertahankan fungsi
+    musik lama dan menyediakan antarmuka awal untuk antrean animasi.
+  </p>
+</section>
+
+<!-- BULK ANIMATION -->
+<section class="panel" id="animation">
+  <h3>01 / Bulk Animation Queue</h3>
+  <p class="sub">
+    Maksimal 1.000 item per batch. Target proses server: maksimal 10 pekerjaan aktif.
+  </p>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="idPanel">Daftar ID</button>
+    <button class="tab" data-tab="filePanel">File RBXM/RBXMX</button>
+  </div>
+
+  <div id="idPanel">
+    <label for="animationIds">Masukkan ID animasi (satu per baris atau pisahkan dengan koma)</label>
+    <textarea id="animationIds" rows="7" maxlength="50000"
+      placeholder="1234567890&#10;2345678901&#10;3456789012"></textarea>
+
+    <div class="actions">
+      <button id="validateIds">Periksa dan Masukkan ke Daftar</button>
+      <button id="clearIds" class="secondary">Hapus Input</button>
+    </div>
+    <p class="note">
+      Validasi format ID tidak membuktikan aset ada, dapat diakses, atau dapat diunggah ulang.
+      ID yang sudah ada bukan file sumber untuk membuat aset baru.
+    </p>
+  </div>
+
+  <div id="filePanel" class="hidden">
+    <label for="modelFiles">Pilih file model untuk diperiksa</label>
+    <input id="modelFiles" type="file" accept=".rbxm,.rbxmx" multiple>
+    <div class="actions">
+      <button id="inspectFiles">Periksa Daftar File</button>
+      <button id="clearFiles" class="secondary">Hapus Pilihan</button>
+    </div>
+    <p class="note">
+      Tahap ini memeriksa nama, ekstensi, dan ukuran file di browser.
+      Belum membaca struktur internal RBXM/RBXMX atau mengunggah aset ke Roblox.
+    </p>
+  </div>
+
+  <div class="status" id="queueStatus">
+    Belum ada item dalam daftar.
+  </div>
+  <div class="progress"><div id="queueProgress"></div></div>
+  <div class="meta" id="queueProgressText">0 / 1000 item</div>
+
+  <div class="actions">
+    <button id="exportQueue" class="secondary">Ekspor Daftar CSV</button>
+    <button id="clearQueue" class="secondary">Kosongkan Daftar</button>
+  </div>
+
+  <div class="tracklist" id="queueList"></div>
+  <p class="note">
+    Catatan: tampilan antrean ini belum menjalankan upload animasi paralel.
+    Endpoint server dan format upload yang didukung Roblox harus dikonfigurasi
+    sebelum tugas dapat diproses oleh 10 worker.
+  </p>
+</section>
+
+<!-- MUSIC STUDIO -->
+<section class="panel" id="music">
+  <h3>02 / Audio Mixer</h3>
+  <p class="sub">Mix beberapa track langsung di browser.</p>
+
+  <div class="drop">
+    <b>Pilih file audio</b><br>
+    <span class="meta">MP3, WAV, OGG, FLAC · pilih beberapa file</span><br>
+    <input id="files" type="file" accept="audio/*,.flac,.ogg" multiple>
+  </div>
+
+  <div id="tracklist" class="tracklist">
+    <div class="meta">Belum ada track.</div>
+  </div>
+
+  <label>Master volume <span id="masterval">85%</span></label>
+  <input id="master" type="range" min="0" max="100" value="85">
+
+  <div class="actions">
+    <button id="play">▶ Play mix</button>
+    <button id="stop" class="secondary">■ Stop</button>
+    <button id="export" class="secondary">Export WAV</button>
+  </div>
+
+  <div id="mixstatus" class="status">Siap. Audio diproses di browser.</div>
+  <p class="note">Semua track mulai dari detik 0. Ekspor WAV dapat menghasilkan file besar.</p>
+</section>
+
+<!-- MUSIC PUBLISHER -->
+<section class="panel" id="publisher">
+  <h3>03 / Roblox Music Publisher</h3>
+  <p class="sub">Upload satu file audio per permintaan melalui server.</p>
+
+  <label for="publishFile">File audio</label>
+  <input id="publishFile" type="file" accept=".mp3,.ogg,.wav,.flac,audio/*">
+
+  <label for="youtubeUrl">Atau URL YouTube yang boleh kamu gunakan</label>
+  <input id="youtubeUrl" type="text" maxlength="500"
+    placeholder="https://www.youtube.com/watch?v=..." autocomplete="url">
+
+  <p class="note">
+    Pilih file atau URL, bukan keduanya. Pengambilan audio YouTube memerlukan
+    yt-dlp dan FFmpeg di server Railway. Gunakan hanya audio yang kamu punya
+    hak atau izin untuk digunakan.
+  </p>
+
+  <label for="displayName">Nama aset Roblox</label>
+  <input id="displayName" type="text" maxlength="80"
+    placeholder="Contoh: Sakurayama Afro House 01">
+
+  <div class="rights">
+    <input id="rights" type="checkbox">
+    <span>
+      Saya memiliki hak atau izin yang diperlukan untuk mengunggah dan menggunakan
+      audio ini, serta memahami Roblox tetap melakukan pemeriksaan dan moderasi.
+    </span>
+  </div>
+
+  <div class="actions">
+    <button id="upload">Upload ke Roblox</button>
+  </div>
+
+  <div id="uploadstatus" class="status">
+    Batas uploader mengikuti konfigurasi server dan aturan Roblox.
+  </div>
+  <p class="note">
+    API key hanya berada di server Railway. Aset yang dikirim belum tentu langsung
+    dapat digunakan karena moderasi dan pengaturan izin Roblox.
+  </p>
+</section>
+</main>
+
+<footer>Sakurayama Studio · Gunakan aset orisinal atau aset berlisensi.</footer>
+
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+/* =========================================================
+   TAB NAVIGATION
+========================================================= */
+document.querySelectorAll('[data-tab]').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+    button.classList.add('active');
+    $('idPanel').classList.toggle('hidden', button.dataset.tab !== 'idPanel');
+    $('filePanel').classList.toggle('hidden', button.dataset.tab !== 'filePanel');
+  });
+});
+
+/* =========================================================
+   BULK ANIMATION QUEUE - INPUT VALIDATION / FILE INVENTORY
+   Does not claim to upload animation assets.
+========================================================= */
+const queue = [];
+const MAX_ITEMS = 1000;
+
+function queueStatus(message, type = '') {
+  $('queueStatus').textContent = message;
+  $('queueStatus').className = 'status ' + type;
+}
+
+function renderQueue() {
+  const list = $('queueList');
+  list.replaceChildren();
+
+  queue.forEach((item, index) => {
+    const row = document.createElement('div');
+    row.className = 'track';
+
+    const info = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'trackname';
+    title.textContent = `${index + 1}. ${item.name}`;
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = `${item.type} · ${item.detail}`;
+
+    info.append(title, meta);
+
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = item.status;
+
+    row.append(info, badge);
+    list.append(row);
+  });
+
+  $('queueProgress').style.width =
+    `${Math.min(100, queue.length / MAX_ITEMS * 100)}%`;
+  $('queueProgressText').textContent = `${queue.length} / ${MAX_ITEMS} item`;
+}
+
+function addQueueItems(items) {
+  const remaining = MAX_ITEMS - queue.length;
+
+  if (remaining <= 0) {
+    queueStatus('Daftar sudah mencapai batas 1.000 item.', 'err');
+    return;
+  }
+
+  const accepted = items.slice(0, remaining);
+  queue.push(...accepted);
+  renderQueue();
+
+  queueStatus(
+    `${accepted.length} item ditambahkan. Total antrean: ${queue.length}. ` +
+    (items.length > remaining ? `${items.length - remaining} item tidak dimasukkan karena batas batch.` : ''),
+    items.length > remaining ? 'warn' : 'ok'
+  );
+}
+
+$('validateIds').addEventListener('click', () => {
+  const raw = $('animationIds').value
+    .split(/[\s,;]+/)
+    .map(value => value.trim())
+    .filter(Boolean);
+
+  const unique = [...new Set(raw)];
+  const valid = unique.filter(id => /^\d{1,25}$/.test(id));
+  const invalid = unique.filter(id => !/^\d{1,25}$/.test(id));
+
+  if (!unique.length) {
+    queueStatus('Masukkan minimal satu ID animasi.', 'err');
+    return;
+  }
+
+  if (unique.length > MAX_ITEMS || queue.length + valid.length > MAX_ITEMS) {
+    queueStatus('Batch ditolak: antrean maksimal 1.000 item.', 'err');
+    return;
+  }
+
+  const newItems = valid
+    .filter(id => !queue.some(item => item.type === 'Animation ID' && item.name === id))
+    .map(id => ({
+      type: 'Animation ID',
+      name: id,
+      detail: 'Format valid; belum diverifikasi oleh Roblox',
+      status: 'Belum diproses'
+    }));
+
+  addQueueItems(newItems);
+
+  if (invalid.length) {
+    queueStatus(
+      `Ditemukan ${invalid.length} ID dengan format tidak valid. ` +
+      `ID valid baru ditambahkan: ${newItems.length}.`,
+      'warn'
+    );
+  } else if (!newItems.length) {
+    queueStatus('Tidak ada ID baru untuk ditambahkan.', 'ok');
+  }
+
+  $('animationIds').value = '';
+});
+
+$('clearIds').addEventListener('click', () => {
+  $('animationIds').value = '';
+});
+
+$('inspectFiles').addEventListener('click', () => {
+  const files = [...$('modelFiles').files];
+
+  if (!files.length) {
+    queueStatus('Pilih file RBXM/RBXMX terlebih dahulu.', 'err');
+    return;
+  }
+
+  if (files.length > MAX_ITEMS || queue.length + files.length > MAX_ITEMS) {
+    queueStatus('Batch ditolak: maksimal 1.000 item.', 'err');
+    return;
+  }
+
+  const accepted = [];
+  const rejected = [];
+
+  files.forEach(file => {
+    if (!/\.(rbxm|rbxmx)$/i.test(file.name)) {
+      rejected.push(file.name);
+      return;
+    }
+
+    accepted.push({
+      type: 'Model file',
+      name: file.name,
+      detail: `${(file.size / 1048576).toFixed(2)} MB; ekstensi dikenali, isi belum diperiksa`,
+      status: 'Belum diproses'
+    });
+  });
+
+  addQueueItems(accepted);
+
+  if (rejected.length) {
+    queueStatus(
+      `${rejected.length} file dilewati karena ekstensi bukan RBXM/RBXMX.`,
+      'warn'
+    );
+  }
+
+  $('modelFiles').value = '';
+});
+
+$('clearFiles').addEventListener('click', () => {
+  $('modelFiles').value = '';
+});
+
+$('clearQueue').addEventListener('click', () => {
+  queue.length = 0;
+  renderQueue();
+  queueStatus('Daftar antrean dikosongkan.');
+});
+
+$('exportQueue').addEventListener('click', () => {
+  if (!queue.length) {
+    queueStatus('Tidak ada item untuk diekspor.', 'err');
+    return;
+  }
+
+  const quote = value => '"' + String(value).replace(/"/g, '""') + '"';
+  const csv = [
+    ['Type', 'Name', 'Detail', 'Status'].map(quote).join(','),
+    ...queue.map(item =>
+      [item.type, item.name, item.detail, item.status].map(quote).join(',')
+    )
+  ].join('\r\n');
+
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'sakurayama-bulk-animation-queue.csv';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+});
+
+/* =========================================================
+   MUSIC MIXER
+========================================================= */
+let tracks = [];
+let ctx = null;
+let sources = [];
+let master = null;
+let playing = false;
+let playbackTimer = null;
+
+const fmt = seconds =>
+  Math.floor(seconds / 60) + ':' +
+  String(Math.floor(seconds % 60)).padStart(2, '0');
+
+function mixStatus(message, type = '') {
+  $('mixstatus').textContent = message;
+  $('mixstatus').className = 'status ' + type;
+}
+
+function context() {
+  if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  return ctx;
+}
+
+$('files').addEventListener('change', async event => {
+  const selected = [...event.target.files];
+  if (!selected.length) return;
+
+  mixStatus('Memuat audio…');
+
+  for (const file of selected) {
+    try {
+      const buffer = await context().decodeAudioData(await file.arrayBuffer());
+      tracks.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()),
+        file,
+        buffer,
+        volume: 1
+      });
+    } catch {
+      mixStatus(`File "${file.name}" tidak dapat dibaca. Coba MP3/WAV/OGG yang valid.`, 'err');
+    }
+  }
+
+  event.target.value = '';
+  renderTracks();
+  mixStatus(`${tracks.length} track siap.`, 'ok');
+});
+
+function renderTracks() {
+  const list = $('tracklist');
+  list.replaceChildren();
+
+  if (!tracks.length) {
+    const empty = document.createElement('div');
+    empty.className = 'meta';
+    empty.textContent = 'Belum ada track.';
+    list.append(empty);
+    return;
+  }
+
+  tracks.forEach(track => {
+    const row = document.createElement('div');
+    row.className = 'track';
+
+    const info = document.createElement('div');
+    const name = document.createElement('div');
+    name.className = 'trackname';
+    name.textContent = track.file.name;
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent =
+      `${fmt(track.buffer.duration)} · ${(track.file.size / 1048576).toFixed(2)} MB`;
+
+    info.append(name, meta);
+
+    const remove = document.createElement('button');
+    remove.className = 'secondary';
+    remove.textContent = 'Hapus';
+    remove.addEventListener('click', () => {
+      stopPlayback();
+      tracks = tracks.filter(item => item.id !== track.id);
+      renderTracks();
+      mixStatus('Track dihapus.');
+    });
+
+    const controls = document.createElement('div');
+    controls.className = 'controls';
+
+    const label = document.createElement('span');
+    label.className = 'meta';
+    label.textContent = 'Volume';
+
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.min = '0';
+    range.max = '150';
+    range.value = String(Math.round(track.volume * 100));
+
+    const value = document.createElement('span');
+    value.className = 'meta';
+    value.textContent = range.value + '%';
+
+    range.addEventListener('input', () => {
+      track.volume = Number(range.value) / 100;
+      value.textContent = range.value + '%';
+    });
+
+    controls.append(label, range, value);
+    row.append(info, remove, controls);
+    list.append(row);
+  });
+}
+
+function stopPlayback() {
+  if (playbackTimer) {
+    clearTimeout(playbackTimer);
+    playbackTimer = null;
+  }
+
+  sources.forEach(source => {
+    try { source.stop(); } catch {}
+    try { source.disconnect(); } catch {}
+  });
+  sources = [];
+  playing = false;
+
+  if (master) {
+    try { master.disconnect(); } catch {}
+    master = null;
+  }
+}
+
+$('stop').addEventListener('click', () => {
+  stopPlayback();
+  mixStatus('Playback dihentikan.');
+});
+
+$('master').addEventListener('input', () => {
+  $('masterval').textContent = $('master').value + '%';
+  if (master) master.gain.value = Number($('master').value) / 100;
+});
+
+$('play').addEventListener('click', async () => {
+  if (!tracks.length) {
+    mixStatus('Tambahkan track terlebih dahulu.', 'err');
+    return;
+  }
+
+  stopPlayback();
+
+  const audioContext = context();
+  await audioContext.resume();
+
+  master = audioContext.createGain();
+  master.gain.value = Number($('master').value) / 100;
+  master.connect(audioContext.destination);
+
+  tracks.forEach(track => {
+    const source = audioContext.createBufferSource();
+    const gain = audioContext.createGain();
+
+    source.buffer = track.buffer;
+    gain.gain.value = track.volume;
+
+    source.connect(gain);
+    gain.connect(master);
+    source.start(audioContext.currentTime + 0.05);
+
+    sources.push(source);
+  });
+
+  playing = true;
+  mixStatus('Memutar semua track bersamaan dari awal.', 'ok');
+
+  const duration = Math.max(...tracks.map(track => track.buffer.duration));
+
+  playbackTimer = setTimeout(() => {
+    if (!playing) return;
+    stopPlayback();
+    mixStatus('Playback selesai.');
+  }, duration * 1000 + 300);
+});
+
+function makeWav(buffer) {
+  const channels = Math.min(2, buffer.numberOfChannels);
+  const sampleRate = buffer.sampleRate;
+  const frames = buffer.length;
+  const output = new ArrayBuffer(44 + frames * channels * 2);
+  const view = new DataView(output);
+
+  const writeString = (offset, text) => {
+    for (let i = 0; i < text.length; i++) {
+      view.setUint8(offset + i, text.charCodeAt(i));
+    }
+  };
+
+  writeString(0, 'RIFF');
+  view.setUint32(4, 36 + frames * channels * 2, true);
+  writeString(8, 'WAVE');
+  writeString(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * channels * 2, true);
+  view.setUint16(32, channels * 2, true);
+  view.setUint16(34, 16, true);
+  writeString(36, 'data');
+  view.setUint32(40, frames * channels * 2, true);
+
+  const data = Array.from(
+    { length: channels },
+    (_, channel) => buffer.getChannelData(channel)
+  );
+
+  let offset = 44;
+
+  for (let frame = 0; frame < frames; frame++) {
+    for (let channel = 0; channel < channels; channel++) {
+      const sample = Math.max(-1, Math.min(1, data[channel][frame]));
+      view.setInt16(
+        offset,
+        sample < 0 ? sample * 32768 : sample * 32767,
+        true
+      );
+      offset += 2;
+    }
+  }
+
+  return new Blob([output], { type: 'audio/wav' });
+}
+
+$('export').addEventListener('click', async () => {
+  if (!tracks.length) {
+    mixStatus('Tambahkan track sebelum ekspor.', 'err');
+    return;
+  }
+
+  $('export').disabled = true;
+  mixStatus('Merender WAV…');
+
+  try {
+    const sampleRate = Math.min(
+      48000,
+      Math.max(...tracks.map(track => track.buffer.sampleRate))
+    );
+    const channels = Math.min(
+      2,
+      Math.max(...tracks.map(track => track.buffer.numberOfChannels))
+    );
+    const duration = Math.max(...tracks.map(track => track.buffer.duration));
+
+    const offline = new OfflineAudioContext(
+      channels,
+      Math.ceil(duration * sampleRate),
+      sampleRate
+    );
+
+    const masterGain = offline.createGain();
+    masterGain.gain.value = Number($('master').value) / 100;
+    masterGain.connect(offline.destination);
+
+    tracks.forEach(track => {
+      const source = offline.createBufferSource();
+      const gain = offline.createGain();
+
+      source.buffer = track.buffer;
+      gain.gain.value = track.volume;
+      source.connect(gain);
+      gain.connect(masterGain);
+      source.start(0);
+    });
+
+    const rendered = await offline.startRendering();
+    const blob = makeWav(rendered);
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = 'sakurayama-mix.wav';
+    anchor.click();
+
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+
+    mixStatus(
+      `WAV diekspor: ${(blob.size / 1048576).toFixed(2)} MB.`,
+      'ok'
+    );
+  } catch (error) {
+    mixStatus('Ekspor gagal: ' + error.message, 'err');
+  } finally {
+    $('export').disabled = false;
+  }
+});
+
+/* =========================================================
+   ROBLOX AUDIO PUBLISHER
+   Uses the existing server endpoint and existing Basic Auth.
+========================================================= */
+function uploadStatus(message, type = '') {
+  $('uploadstatus').textContent = message;
+  $('uploadstatus').className = 'status ' + type;
+}
+
+$('upload').addEventListener('click', async () => {
+  const file = $('publishFile').files[0];
+  const url = $('youtubeUrl').value.trim();
+
+  if (Boolean(file) === Boolean(url)) {
+    uploadStatus('Pilih satu sumber saja: file audio atau URL YouTube.', 'err');
+    return;
+  }
+
+  if (!$('rights').checked) {
+    uploadStatus('Konfirmasikan hak penggunaan audio terlebih dahulu.', 'err');
+    return;
+  }
+
+  if (file) {
+    const ext = file.name.toLowerCase().split('.').pop();
+
+    if (!['mp3', 'ogg', 'wav', 'flac'].includes(ext)) {
+      uploadStatus('Format harus MP3, OGG, WAV, atau FLAC.', 'err');
+      return;
+    }
+
+    if (file.size > 19 * 1024 * 1024) {
+      uploadStatus('Ukuran file maksimal 19 MB pada uploader ini.', 'err');
+      return;
+    }
+  } else {
+    try {
+      const parsed = new URL(url);
+      const allowed = [
+        'youtube.com',
+        'www.youtube.com',
+        'm.youtube.com',
+        'music.youtube.com',
+        'youtu.be',
+        'www.youtu.be'
+      ];
+
+      if (parsed.protocol !== 'https:' || !allowed.includes(parsed.hostname.toLowerCase())) {
+        uploadStatus('Masukkan URL HTTPS YouTube yang valid.', 'err');
+        return;
+      }
+    } catch {
+      uploadStatus('URL tidak valid.', 'err');
+      return;
+    }
+  }
+
+  const form = new FormData();
+
+  if (file) form.append('audio', file);
+  else form.append('youtubeUrl', url);
+
+  form.append(
+    'displayName',
+    $('displayName').value.trim() ||
+    (file ? file.name.replace(/\.[^.]+$/, '') : 'YouTube Audio')
+  );
+
+  $('upload').disabled = true;
+  uploadStatus(
+    file
+      ? 'Mengirim file ke Roblox Open Cloud…'
+      : 'Mengambil audio melalui server lalu mengirim ke Roblox…'
+  );
+
+  try {
+    const response = await fetch('/api/upload-audio', {
+      method: 'POST',
+      body: form
+    });
+
+    const data = await response.json().catch(() => ({
+      error: 'Respons server tidak valid.'
+    }));
+
+    if (!response.ok) {
+      throw new Error(JSON.stringify(data, null, 2));
+    }
+
+    uploadStatus(JSON.stringify(data, null, 2), 'ok');
+  } catch (error) {
+    uploadStatus('Upload gagal:\n' + error.message, 'err');
+  } finally {
+    $('upload').disabled = false;
+  }
+});
+</script>
+</body>
+</html>
